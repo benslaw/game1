@@ -17,8 +17,8 @@ public class Game1 {
 
     interface constants {
         public static final int window_w = 1000;
-        public static final int window_h = 1000;
-        public Color background = new Color(0,0,0);
+        public static final int window_h = 500;
+        public Color background = new Color(0,50,50);
         public WorldImage theWorld =
                 new RectangleImage(new Posn(window_w/2, window_h/2), 
                 window_w, window_h, background);
@@ -27,11 +27,45 @@ public class Game1 {
 //    public WorldImage theWorld = 
 //            new RectangleImage(new Posn(0,0),window_w*2,window_h*2,new Red());
     
-    public class slideyJay implements constants {
+    public class wall_block implements constants {
+        
+        Posn location;
+        int size;
+        
+        public wall_block(Posn location, int size) {
+            this.location = location;
+            this.size = size;
+        }
+        
+        public void start(int y, int size) {
+            this.location = new Posn(window_w, y);
+            this.size = size;
+        }
+        
+        public void slide_left() {
+            this.location = new Posn(this.location.x - 5, this.location.y);
+        }
+        
+    }
+    
+    public class wall implements constants {
+        
+        int numblocks;
+        wall_block block;
+        Random random_int = new Random();
+        
+        public wall(wall_block block, int numblocks) {
+            this.numblocks = numblocks;
+            this.block = block;
+        }
+        
+    }
+    
+    public static class slideyJay implements constants {
         
         //slideyJay only has one important field, being the height
         int jay_y;
-        int jay_x = 50;
+        int jay_x = 150;
         
         //constructor
         slideyJay(int jay_y) {
@@ -43,21 +77,30 @@ public class Game1 {
             return new Posn(jay_x,jay_y);
         }
         
+        public boolean is_jay_okay() {
+            return true;
+        }
+        
         public void move(String str) {
             if(str.equals("up")) {
-                jay_y = jay_y + 5;
+                if(jay_y > 25) {
+                    jay_y = jay_y - 25;
+                }
             } else if(str.equals("down")) {
-                jay_y = jay_y - 5;
+                if(jay_y < window_h - 25) {
+                    jay_y = jay_y + 25;
+                }
             }
         }
         
         public WorldImage jayImage() {
-            return new FromFileImage(this.where_is_Jay(), "jay_face.jpg");
+            return new RectangleImage(this.where_is_Jay(), 25, 25, new Blue());
+//            return new FromFileImage(this.where_is_Jay(), "jay_face.jpg");
         }
         
     }
     
-    public class playField extends World implements constants{
+    public static class playField extends World implements constants{
         slideyJay Jay;
         
         public playField(slideyJay Jay) {
@@ -75,7 +118,7 @@ public class Game1 {
         }
         
         public WorldEnd gameOver() {
-            if(/*slidey jay collides with a wall*/) {
+            if(true) {
                 return new WorldEnd(true, new OverlayImages(this.makeImage(),
                         new TextImage(new Posn(window_w/2, window_h/2),
                         "You killed Jay!", new Red())));
@@ -91,10 +134,17 @@ public class Game1 {
 //        return theWorld;
 //    }
     
-    
+    public static class SampleWorld implements constants {
+        SampleWorld() {}
+        
+        slideyJay player = new slideyJay(window_h/2);
+        
+        playField sampleField = new playField(player);
+    }
     
     public static void main(String[] args) {
         System.out.println("test");
-        
+        SampleWorld x = new SampleWorld();
+        x.sampleField.bigBang(1000, 500);
     }
 }

@@ -18,7 +18,7 @@ public class Game1 {
     interface constants {
         public static final int window_w = 1000;
         public static final int window_h = 500;
-        public Color background = new Color(0,50,50);
+        public Color background = new Color(0,0,0);
         public WorldImage theWorld =
                 new RectangleImage(new Posn(window_w/2, window_h/2), 
                 window_w, window_h, background);

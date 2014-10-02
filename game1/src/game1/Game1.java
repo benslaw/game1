@@ -32,30 +32,30 @@ public class Game1 {
             this.location = location;
         }
         
-        public RectangleImage wall_block_build(Posn location, int w, int h, Color color) {
-            return new RectangleImage(location, w, h, color);
-        }
+//        public RectangleImage wall_block_build(Posn location, int w, int h, Color color) {
+//            return new RectangleImage(location, w, h, color);
+//        }
         
 //        public void start(int y, int size) {
 //            this.location = new Posn(window_w, y);
 //            this.size = size;
 //        }
         
-        public void slide_left() {
-            this.location = new Posn(this.location.x - 25, this.location.y);
-        }
+//        public void slide_left() {
+//            this.location = new Posn(this.location.x - 25, this.location.y);
+//        }
         
     }
     
     public static class wall implements constants {
 
-        wall_block block;
+//        wall_block block;
         int numblocks = window_h/25;
         Random random_int = new Random();
         WorldImage wall = theWorld;
 
         public wall(wall_block block) {
-            this.block = block;
+//            this.block = block;
         }
 
         public int randomInt(int min, int max) {
@@ -70,8 +70,6 @@ public class Game1 {
                     y_coord = y_coord + 25;
                 } else {
                     wall = wall.overlayImages(
-//                            block.wall_block_build(new Posn(window_w, y_coord),
-//                            25, 25, new Green());
                             new RectangleImage(new Posn(window_w, y_coord), 
                             25, 25, new Green()));
                     y_coord = y_coord + 25;
@@ -79,6 +77,11 @@ public class Game1 {
             }
             return wall;
         }
+        
+        public void slide_wall() {
+            wall.moveTo(new Posn(wall.pinhole.x - 25, wall.pinhole.y));
+        }
+        
     }
     
     public static class slideyJay implements constants {
@@ -124,10 +127,15 @@ public class Game1 {
         slideyJay Jay;
         wall_block building;
         wall theWall;
+        int counter = 0;
         
         public playField(slideyJay Jay, wall Wall) {
             this.Jay = Jay;
             this.theWall = Wall;
+        }
+        
+        public void onTick() {
+            this.theWall.slide_wall();
         }
         
         public void onKeyEvent(String str) {
@@ -135,9 +143,15 @@ public class Game1 {
         }
         
         public WorldImage makeImage() {
-            return new RectangleImage(new Posn(window_w/2, window_h/2), 
-                    window_w, window_h, background).
-                    overlayImages(this.theWall.build_wall(building),this.Jay.jayImage());
+            if (counter % 4 == 0) {
+                return new RectangleImage(new Posn(window_w / 2, window_h / 2),
+                        window_w, window_h, background).
+                        overlayImages(this.theWall.build_wall(building), this.Jay.jayImage());
+            } else {
+                return new RectangleImage(new Posn(window_w / 2, window_h / 2),
+                        window_w, window_h, background).
+                        overlayImages(this.Jay.jayImage());
+            }
         }
         
         public WorldEnd gameOver() {
@@ -168,6 +182,6 @@ public class Game1 {
     public static void main(String[] args) {
         System.out.println("test");
         SampleWorld x = new SampleWorld();
-        x.sampleField.bigBang(1000, 500);
+        x.sampleField.bigBang(1000, 500, 1);
     }
 }

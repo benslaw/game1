@@ -18,7 +18,7 @@ public class Game1 {
     interface constants {
         public static final int window_w = 1000;
         public static final int window_h = 500;
-        public Color background = new Color(0,0,0);
+        public Color background = new Color(255, 255, 255);
         public WorldImage theWorld =
                 new RectangleImage(new Posn(window_w/2, window_h/2), 
                 window_w, window_h, background);
@@ -82,6 +82,10 @@ public class Game1 {
             wall.moveTo(new Posn(wall.pinhole.x - 25, wall.pinhole.y));
         }
         
+        public int wall_edge() {
+            return 5;
+        }
+        
     }
     
     public static class slideyJay implements constants {
@@ -100,8 +104,8 @@ public class Game1 {
             return new Posn(jay_x,jay_y);
         }
         
-        public boolean is_jay_okay() {
-            return true;
+        public int jay_edge() {
+            return (jay_x + 13);
         }
         
         public void move(String str) {
@@ -136,6 +140,8 @@ public class Game1 {
         
         public void onTick() {
             this.theWall.slide_wall();
+            System.out.println(Jay.jay_edge());
+            System.out.println(theWall.wall_edge());
         }
         
         public void onKeyEvent(String str) {
@@ -143,19 +149,25 @@ public class Game1 {
         }
         
         public WorldImage makeImage() {
-            if (counter % 4 == 0) {
+            counter++;
+            if (counter % 20 == 0) {
                 return new RectangleImage(new Posn(window_w / 2, window_h / 2),
                         window_w, window_h, background).
                         overlayImages(this.theWall.build_wall(building), this.Jay.jayImage());
             } else {
-                return new RectangleImage(new Posn(window_w / 2, window_h / 2),
-                        window_w, window_h, background).
-                        overlayImages(this.Jay.jayImage());
+                return theWorld.overlayImages(theWall.wall, this.Jay.jayImage());
+//                return new RectangleImage(new Posn(window_w / 2, window_h / 2),
+//                        window_w, window_h, background).
+//                        overlayImages(this.Jay.jayImage());
             }
         }
         
+        public boolean collisionHuh() {
+            return (Jay.jay_edge() == theWall.wall_edge());
+        }
+        
         public WorldEnd gameOver() {
-            if(true) {
+            if(collisionHuh()) {
                 return new WorldEnd(true, new OverlayImages(this.makeImage(),
                         new TextImage(new Posn(window_w/2, window_h/2),
                         "You killed Jay!", new Red())));

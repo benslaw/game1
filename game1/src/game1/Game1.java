@@ -9,6 +9,7 @@ import javalib.worldcanvas.*;
 import javalib.worldimages.*;
 import java.awt.Color;
 import java.util.Random;
+import java.util.*;
 /**
  *
  * @author Ben
@@ -44,6 +45,55 @@ public class Game1 {
 //        public void slide_left() {
 //            this.location = new Posn(this.location.x - 25, this.location.y);
 //        }
+        
+    }
+    
+    public static class single_wall implements constants {
+        
+        int numblocks = window_h/25;
+        ArrayList<Posn> oneWall;
+        int y_coord_hole;
+        Random rand = new Random();
+        
+        public single_wall(ArrayList<Posn> oneWall, int theHole) {
+            this.oneWall = oneWall;
+            this.y_coord_hole = theHole;
+        }
+        
+        public int randomInt(int min, int max) {
+            return rand.nextInt((max - min) + 1) + min;
+        }
+        
+        public single_wall build_one_wall() {
+            int gap = randomInt(0,numblocks);
+            int y_coord = 12;
+            for(int i = 0; i <= numblocks; i++) {
+                if (i == gap) {
+                    y_coord_hole = y_coord;
+                    y_coord = y_coord + 25;
+                } else {
+                    oneWall.add(new Posn(window_w, y_coord));
+                    y_coord = y_coord + 25;
+                }
+            }
+            return new single_wall(oneWall, y_coord_hole);
+        }
+        
+        public int one_wall_x(ArrayList<Posn> x) {
+            return x.get(1).x;
+        }
+        
+        public int wall_gap(single_wall theWall) {
+            return theWall.y_coord_hole;
+        }
+        
+        public single_wall slideWall() {
+            ArrayList<Posn> newWall = new ArrayList<Posn>();
+            for(int i = 0; i < oneWall.size(); i++) {
+                newWall.add(new Posn(oneWall.get(i).x - 25, oneWall.get(i).y));
+            }
+            return new single_wall(newWall, y_coord_hole);
+        }
         
     }
     
@@ -83,8 +133,12 @@ public class Game1 {
         }
         
         public int wall_edge() {
-            return 5;
+            return wall.pinhole.x;
         }
+        
+        //store a wall as a data structure with a position, append to worldImage 
+        //in a loop, keep posns in an array and map slide to the posns to reflect
+        //movement
         
     }
     
@@ -149,6 +203,7 @@ public class Game1 {
         }
         
         public WorldImage makeImage() {
+            //wait function instead of counter?
             counter++;
             if (counter % 20 == 0) {
                 return new RectangleImage(new Posn(window_w / 2, window_h / 2),

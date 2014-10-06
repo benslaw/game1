@@ -89,13 +89,13 @@ public class Game1 {
         
         public single_wall slideWall() {
             ArrayList<Posn> newWall = new ArrayList<Posn>();
-            System.out.println("slidewall 1");
+//            System.out.println("slidewall 1");
             for(int i = 0; i < oneWall.size(); i++) {
-                System.out.println("slidewall 2");
+//                System.out.println("slidewall 2");
                 newWall.add(new Posn(oneWall.get(i).x - 25, oneWall.get(i).y));
-                System.out.println(oneWall.get(i).x - 25);
+//                System.out.println(oneWall.get(i).x - 25);
             }
-            System.out.println("slidewall 3");
+//            System.out.println("slidewall 3");
             return new single_wall(newWall, y_coord_hole);
         }
         
@@ -131,6 +131,15 @@ public class Game1 {
                 }
             }
             return newWorld;
+        }
+        
+        public ArrayList<single_wall> slide_all_walls() {
+            for(int i = 0; i < currentWalls.size(); i++) {
+                single_wall temp = currentWalls.get(i);
+                currentWalls.add(temp.slideWall());
+                currentWalls.remove(temp);
+            }
+            return currentWalls;
         }
         
     }
@@ -197,7 +206,7 @@ public class Game1 {
         }
         
         public int jay_edge() {
-            return (jay_x + 13);
+            return jay_x;
         }
         
         public void move(String str) {
@@ -233,14 +242,15 @@ public class Game1 {
         }
         
         public void onTick() {
-            for (int i = 0; i < theWalls.currentWalls.size(); i++) {
-                theWall = this.theWalls.currentWalls.get(i).slideWall();
-                this.theWalls.currentWalls.remove(i);
-                this.theWalls.currentWalls.add(theWall);
-//                this.makeImage();
-            }
-            System.out.println(Jay.jay_edge());
-            System.out.println(theWalls.currentWalls.get(0).oneWall.get(0).x);
+//            for (int i = 0; i < theWalls.currentWalls.size(); i++) {
+//                single_wall theOldWall = this.theWalls.currentWalls.get(i);
+//                theWall = theOldWall.slideWall();
+//                this.theWalls.currentWalls.remove(theOldWall);
+//                this.theWalls.currentWalls.add(theWall);
+//            }
+            this.theWalls.slide_all_walls();
+//            System.out.println(Jay.jay_edge());
+//            System.out.println(theWalls.currentWalls.get(0).oneWall.get(0).x);
         }
         
         public void onKeyEvent(String str) {
@@ -269,15 +279,16 @@ public class Game1 {
         public boolean collisionHuh() {
 //            System.out.println(Jay.jay_edge());
 //            System.out.println(theWalls.currentWalls.get(1).oneWall.get(1).x);
-            return (Jay.jay_edge() == theWalls.currentWalls.get(1).oneWall.get(1).x);
+            return (Jay.jay_edge() == theWalls.currentWalls.get(0).oneWall.get(0).x);
         }
         
         public WorldEnd gameOver() {
-            if(collisionHuh()) {
+            if(this.collisionHuh()) {
                 return new WorldEnd(true, new OverlayImages(this.makeImage(),
                         new TextImage(new Posn(window_w/2, window_h/2),
                         "You killed Jay!", new Red())));
             } else {
+                System.out.println("not over yet");
                 return new WorldEnd(false, this.makeImage());
             }
         }
@@ -299,7 +310,6 @@ public class Game1 {
     
     public static void main(String[] args) {
         System.out.println("test");
- //       System.out.println()
         SampleWorld x = new SampleWorld();
         x.sampleField.bigBang(1000, 500, 1);
     }

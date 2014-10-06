@@ -51,7 +51,7 @@ public class Game1 {
     
     public static class single_wall implements constants {
         
-        ArrayList<Posn> oneWall;
+        ArrayList<Posn> oneWall = new ArrayList<Posn>();
         int y_coord_hole;
         Random rand = new Random();
         
@@ -89,9 +89,13 @@ public class Game1 {
         
         public single_wall slideWall() {
             ArrayList<Posn> newWall = new ArrayList<Posn>();
+            System.out.println("slidewall 1");
             for(int i = 0; i < oneWall.size(); i++) {
+                System.out.println("slidewall 2");
                 newWall.add(new Posn(oneWall.get(i).x - 25, oneWall.get(i).y));
+                System.out.println(oneWall.get(i).x - 25);
             }
+            System.out.println("slidewall 3");
             return new single_wall(newWall, y_coord_hole);
         }
         
@@ -99,8 +103,8 @@ public class Game1 {
     
     public static class all_walls implements constants {
         
-        ArrayList<single_wall> currentWalls;
-        int counter = 0;
+        ArrayList<single_wall> currentWalls = new ArrayList<single_wall>();
+        int counter = 19;
         
         public all_walls(ArrayList<single_wall> currentWalls) {
             this.currentWalls = currentWalls;
@@ -220,7 +224,7 @@ public class Game1 {
 //        wall_block building;
         single_wall theWall = new single_wall(new ArrayList<Posn>(), 0);
         all_walls theWalls = new all_walls(new ArrayList<single_wall>());
-        int counter = 0;
+//        int counter = 0;
         
         public playField(slideyJay Jay, single_wall Wall, all_walls theWalls) {
             this.Jay = Jay;
@@ -230,10 +234,13 @@ public class Game1 {
         
         public void onTick() {
             for (int i = 0; i < theWalls.currentWalls.size(); i++) {
-                this.theWalls.currentWalls.get(i).slideWall();
+                theWall = this.theWalls.currentWalls.get(i).slideWall();
+                this.theWalls.currentWalls.remove(i);
+                this.theWalls.currentWalls.add(theWall);
+//                this.makeImage();
             }
             System.out.println(Jay.jay_edge());
-            System.out.println(theWall.one_wall_x(theWall.oneWall));
+            System.out.println(theWalls.currentWalls.get(0).oneWall.get(0).x);
         }
         
         public void onKeyEvent(String str) {
@@ -241,8 +248,9 @@ public class Game1 {
         }
         
         public WorldImage makeImage() {
-            theWalls.currentWalls = theWalls.collect_walls();
-            return theWalls.walls_image(theWalls.currentWalls).
+//            System.out.println("theWalls is" + theWalls.)
+//            theWalls.collect_walls();
+            return theWalls.walls_image(theWalls.collect_walls()).
                     overlayImages(this.Jay.jayImage());
 //            //wait function instead of counter?
 //            counter++;
@@ -259,6 +267,8 @@ public class Game1 {
         }
         
         public boolean collisionHuh() {
+//            System.out.println(Jay.jay_edge());
+//            System.out.println(theWalls.currentWalls.get(1).oneWall.get(1).x);
             return (Jay.jay_edge() == theWalls.currentWalls.get(1).oneWall.get(1).x);
         }
         
@@ -279,8 +289,8 @@ public class Game1 {
         SampleWorld() {}
         
         slideyJay player = new slideyJay(window_h - 13);
-        single_wall oneWall;
-        all_walls theWall;
+        single_wall oneWall = new single_wall(new ArrayList<Posn>(), 0);
+        all_walls theWall = new all_walls(new ArrayList<single_wall>());
         
         playField sampleField = new playField(player, oneWall, theWall);
         
@@ -289,6 +299,7 @@ public class Game1 {
     
     public static void main(String[] args) {
         System.out.println("test");
+ //       System.out.println()
         SampleWorld x = new SampleWorld();
         x.sampleField.bigBang(1000, 500, 1);
     }

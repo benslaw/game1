@@ -19,20 +19,21 @@ public class Game1 {
     interface constants {
         public static final int window_w = 1000;
         public static final int window_h = 500;
+        int numblocks = window_h/25;
         public Color background = new Color(255, 255, 255);
         public WorldImage theWorld =
                 new RectangleImage(new Posn(window_w/2, window_h/2), 
                 window_w, window_h, background);
     }
     
-    public static class wall_block implements constants {
-        
-        Posn location;
-        
-        public wall_block(Posn location, int size) {
-            this.location = location;
-        }
-        
+//    public static class wall_block implements constants {
+//        
+//        Posn location;
+//        
+//        public wall_block(Posn location, int size) {
+//            this.location = location;
+//        }
+//        
 //        public RectangleImage wall_block_build(Posn location, int w, int h, Color color) {
 //            return new RectangleImage(location, w, h, color);
 //        }
@@ -46,11 +47,10 @@ public class Game1 {
 //            this.location = new Posn(this.location.x - 25, this.location.y);
 //        }
         
-    }
+//    }
     
     public static class single_wall implements constants {
         
-        int numblocks = window_h/25;
         ArrayList<Posn> oneWall;
         int y_coord_hole;
         Random rand = new Random();
@@ -97,50 +97,84 @@ public class Game1 {
         
     }
     
-    public static class wall implements constants {
-
-//        wall_block block;
-        int numblocks = window_h/25;
-        Random random_int = new Random();
-        WorldImage wall = theWorld;
-
-        public wall(wall_block block) {
-//            this.block = block;
-        }
-
-        public int randomInt(int min, int max) {
-            return random_int.nextInt((max - min) + 1) + min;
+    public static class all_walls implements constants {
+        
+        ArrayList<single_wall> currentWalls;
+        int counter = 0;
+        
+        public all_walls(ArrayList<single_wall> currentWalls) {
+            this.currentWalls = currentWalls;
         }
         
-        public WorldImage build_wall(wall_block block) {
-            int gap = randomInt(0,numblocks);
-            int y_coord = 12;
-            for(int i = 0; i <= numblocks; i++) {
-                if (i == gap) {
-                    y_coord = y_coord + 25;
-                } else {
-                    wall = wall.overlayImages(
-                            new RectangleImage(new Posn(window_w, y_coord), 
-                            25, 25, new Green()));
-                    y_coord = y_coord + 25;
+        public ArrayList<single_wall> collect_walls() {
+            counter++;
+            single_wall newWall = new single_wall(new ArrayList<Posn>(), 0);
+            if(counter % 20 == 0) {
+                currentWalls.add(newWall.build_one_wall());
+                return currentWalls;
+            } else {
+                return currentWalls;
+            }
+        }
+        
+        public WorldImage walls_image(ArrayList<single_wall> walls) {
+            RectangleImage temp;
+            WorldImage newWorld = theWorld;
+            for (int i = 0; i < walls.size(); i++) {
+                for (int j = 0; j < numblocks; j++) {
+                    temp = new RectangleImage(walls.get(i).oneWall.get(j), 25, 25, new Green());     
+                    newWorld = newWorld.overlayImages(temp);
                 }
             }
-            return wall;
+            return newWorld;
         }
-        
-        public void slide_wall() {
-            wall.moveTo(new Posn(wall.pinhole.x - 25, wall.pinhole.y));
-        }
-        
-        public int wall_edge() {
-            return wall.pinhole.x;
-        }
-        
-        //store a wall as a data structure with a position, append to worldImage 
-        //in a loop, keep posns in an array and map slide to the posns to reflect
-        //movement
         
     }
+    
+//    public static class wall implements constants {
+//
+////        wall_block block;
+//        int numblocks = window_h/25;
+//        Random random_int = new Random();
+//        WorldImage wall = theWorld;
+//
+//        public wall(wall_block block) {
+////            this.block = block;
+//        }
+//
+//        public int randomInt(int min, int max) {
+//            return random_int.nextInt((max - min) + 1) + min;
+//        }
+//        
+//        public WorldImage build_wall(wall_block block) {
+//            int gap = randomInt(0,numblocks);
+//            int y_coord = 12;
+//            for(int i = 0; i <= numblocks; i++) {
+//                if (i == gap) {
+//                    y_coord = y_coord + 25;
+//                } else {
+//                    wall = wall.overlayImages(
+//                            new RectangleImage(new Posn(window_w, y_coord), 
+//                            25, 25, new Green()));
+//                    y_coord = y_coord + 25;
+//                }
+//            }
+//            return wall;
+//        }
+//        
+//        public void slide_wall() {
+//            wall.moveTo(new Posn(wall.pinhole.x - 25, wall.pinhole.y));
+//        }
+//        
+//        public int wall_edge() {
+//            return wall.pinhole.x;
+//        }
+//        
+//        //store a wall as a data structure with a position, append to worldImage 
+//        //in a loop, keep posns in an array and map slide to the posns to reflect
+//        //movement
+//        
+//    }
     
     public static class slideyJay implements constants {
         
@@ -183,19 +217,23 @@ public class Game1 {
     
     public static class playField extends World implements constants{
         slideyJay Jay;
-        wall_block building;
-        wall theWall;
+//        wall_block building;
+        single_wall theWall = new single_wall(new ArrayList<Posn>(), 0);
+        all_walls theWalls = new all_walls(new ArrayList<single_wall>());
         int counter = 0;
         
-        public playField(slideyJay Jay, wall Wall) {
+        public playField(slideyJay Jay, single_wall Wall, all_walls theWalls) {
             this.Jay = Jay;
             this.theWall = Wall;
+            this.theWalls = theWalls;
         }
         
         public void onTick() {
-            this.theWall.slide_wall();
+            for (int i = 0; i < theWalls.currentWalls.size(); i++) {
+                this.theWalls.currentWalls.get(i).slideWall();
+            }
             System.out.println(Jay.jay_edge());
-            System.out.println(theWall.wall_edge());
+            System.out.println(theWall.one_wall_x(theWall.oneWall));
         }
         
         public void onKeyEvent(String str) {
@@ -203,22 +241,25 @@ public class Game1 {
         }
         
         public WorldImage makeImage() {
-            //wait function instead of counter?
-            counter++;
-            if (counter % 20 == 0) {
-                return new RectangleImage(new Posn(window_w / 2, window_h / 2),
-                        window_w, window_h, background).
-                        overlayImages(this.theWall.build_wall(building), this.Jay.jayImage());
-            } else {
-                return theWorld.overlayImages(theWall.wall, this.Jay.jayImage());
+            theWalls.currentWalls = theWalls.collect_walls();
+            return theWalls.walls_image(theWalls.currentWalls).
+                    overlayImages(this.Jay.jayImage());
+//            //wait function instead of counter?
+//            counter++;
+//            if (counter % 20 == 0) {
+//                return new RectangleImage(new Posn(window_w / 2, window_h / 2),
+//                        window_w, window_h, background).
+//                        overlayImages(this.theWall.build_one_wall(), this.Jay.jayImage());
+//            } else {
+//                return theWorld.overlayImages(theWall.wall, this.Jay.jayImage());
 //                return new RectangleImage(new Posn(window_w / 2, window_h / 2),
 //                        window_w, window_h, background).
 //                        overlayImages(this.Jay.jayImage());
-            }
+//            }
         }
         
         public boolean collisionHuh() {
-            return (Jay.jay_edge() == theWall.wall_edge());
+            return (Jay.jay_edge() == theWalls.currentWalls.get(1).oneWall.get(1).x);
         }
         
         public WorldEnd gameOver() {
@@ -238,10 +279,10 @@ public class Game1 {
         SampleWorld() {}
         
         slideyJay player = new slideyJay(window_h - 13);
-        wall_block block = new wall_block(new Posn(window_w, 0), 5);
-        wall theWall = new wall(block);
+        single_wall oneWall;
+        all_walls theWall;
         
-        playField sampleField = new playField(player, theWall);
+        playField sampleField = new playField(player, oneWall, theWall);
         
         
     }

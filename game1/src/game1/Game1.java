@@ -104,7 +104,7 @@ public class Game1 {
     public static class all_walls implements constants {
         
         ArrayList<single_wall> currentWalls = new ArrayList<single_wall>();
-        int counter = 19;
+        int counter = 9;
         
         public all_walls(ArrayList<single_wall> currentWalls) {
             this.currentWalls = currentWalls;
@@ -113,7 +113,7 @@ public class Game1 {
         public ArrayList<single_wall> collect_walls() {
             counter++;
             single_wall newWall = new single_wall(new ArrayList<Posn>(), 0);
-            if(counter % 20 == 0) {
+            if(counter % 10 == 0) {
                 currentWalls.add(newWall.build_one_wall());
                 return currentWalls;
             } else {
@@ -133,10 +133,21 @@ public class Game1 {
             return newWorld;
         }
         
+//        public ArrayList<single_wall> wall_slide() {
+//            ArrayList<single_wall> temp = new ArrayList<single_wall>();
+//            for (int i = 0; i < currentWalls.size(); i++) {
+////                temp.add(i, currentWalls.get(i).slideWall());
+//                single_wall temp1 = currentWalls.get(i);
+//                temp1 = temp1.slideWall();
+//                currentWalls.add(i, temp1);
+//            }
+//            return currentWalls;
+//        }
+        
         public ArrayList<single_wall> slide_all_walls() {
             for(int i = 0; i < currentWalls.size(); i++) {
                 single_wall temp = currentWalls.get(i);
-                currentWalls.add(temp.slideWall());
+                currentWalls.add(i, temp.slideWall());
                 currentWalls.remove(temp);
             }
             return currentWalls;
@@ -233,7 +244,7 @@ public class Game1 {
 //        wall_block building;
         single_wall theWall = new single_wall(new ArrayList<Posn>(), 0);
         all_walls theWalls = new all_walls(new ArrayList<single_wall>());
-//        int counter = 0;
+        int marker = 0;
         
         public playField(slideyJay Jay, single_wall Wall, all_walls theWalls) {
             this.Jay = Jay;
@@ -248,7 +259,11 @@ public class Game1 {
 //                this.theWalls.currentWalls.remove(theOldWall);
 //                this.theWalls.currentWalls.add(theWall);
 //            }
+            if(theWalls.currentWalls.get(0).oneWall.get(0).x == 0) {
+                theWalls.currentWalls.remove(0);
+            }
             this.theWalls.slide_all_walls();
+            this.theWalls.collect_walls();
 //            System.out.println(Jay.jay_edge());
 //            System.out.println(theWalls.currentWalls.get(0).oneWall.get(0).x);
         }
@@ -260,7 +275,11 @@ public class Game1 {
         public WorldImage makeImage() {
 //            System.out.println("theWalls is" + theWalls.)
 //            theWalls.collect_walls();
-            return theWalls.walls_image(theWalls.collect_walls()).
+            if(marker == 0) {
+                theWalls.collect_walls();
+                marker = 1;
+            }
+            return theWalls.walls_image(theWalls.currentWalls).
                     overlayImages(this.Jay.jayImage());
 //            //wait function instead of counter?
 //            counter++;
@@ -278,17 +297,25 @@ public class Game1 {
         
         public boolean collisionHuh() {
 //            System.out.println(Jay.jay_edge());
-//            System.out.println(theWalls.currentWalls.get(1).oneWall.get(1).x);
-            return (Jay.jay_edge() == theWalls.currentWalls.get(0).oneWall.get(0).x);
+//            System.out.println(theWalls.currentWalls.get(0).oneWall.get(0).x);
+            if(Jay.jay_edge() == theWalls.currentWalls.get(0).oneWall.get(0).x
+                    && Jay.jay_y == theWalls.currentWalls.get(0).y_coord_hole) {
+                return false;
+            } else if(Jay.jay_edge() == theWalls.currentWalls.get(0).oneWall.get(0).x){
+                return true;
+            } else {
+                return false;
+            }
         }
         
-        public WorldEnd gameOver() {
+        public WorldEnd worldEnds() {
+//            System.out.println("now in gameover");
             if(this.collisionHuh()) {
                 return new WorldEnd(true, new OverlayImages(this.makeImage(),
                         new TextImage(new Posn(window_w/2, window_h/2),
                         "You killed Jay!", new Red())));
             } else {
-                System.out.println("not over yet");
+//                System.out.println("not over yet");
                 return new WorldEnd(false, this.makeImage());
             }
         }
@@ -311,6 +338,6 @@ public class Game1 {
     public static void main(String[] args) {
         System.out.println("test");
         SampleWorld x = new SampleWorld();
-        x.sampleField.bigBang(1000, 500, 1);
+        x.sampleField.bigBang(1000, 500, 0.5);
     }
 }

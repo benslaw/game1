@@ -14,6 +14,15 @@ import java.util.*;
  *
  * @author Ben
  */
+class Testeez {
+
+    public static void check(String label, Object x, Object y) throws Exception {
+        if (x != y) {
+            throw new Exception("\n" + label + ": " + x + " should equal " + y + " but it don't :(");
+        }
+    }
+}
+
 public class Game1 {
 
     interface constants {
@@ -65,7 +74,7 @@ public class Game1 {
         }
         
         public single_wall build_one_wall() {
-            int gap = randomInt(0,numblocks);
+            int gap = randomInt(1,numblocks-1);
             int y_coord = 12;
             for(int i = 0; i <= numblocks; i++) {
                 if (i == gap) {
@@ -245,6 +254,7 @@ public class Game1 {
         single_wall theWall = new single_wall(new ArrayList<Posn>(), 0);
         all_walls theWalls = new all_walls(new ArrayList<single_wall>());
         int marker = 0;
+        int score = 0;
         
         public playField(slideyJay Jay, single_wall Wall, all_walls theWalls) {
             this.Jay = Jay;
@@ -279,8 +289,10 @@ public class Game1 {
                 theWalls.collect_walls();
                 marker = 1;
             }
+            TextImage scoreBox = new TextImage(new Posn(window_w-50,
+                    window_h-25), "Score: " + score, new Red());
             return theWalls.walls_image(theWalls.currentWalls).
-                    overlayImages(this.Jay.jayImage());
+                    overlayImages(this.Jay.jayImage(), scoreBox);
 //            //wait function instead of counter?
 //            counter++;
 //            if (counter % 20 == 0) {
@@ -300,6 +312,7 @@ public class Game1 {
 //            System.out.println(theWalls.currentWalls.get(0).oneWall.get(0).x);
             if(Jay.jay_edge() == theWalls.currentWalls.get(0).oneWall.get(0).x
                     && Jay.jay_y == theWalls.currentWalls.get(0).y_coord_hole) {
+                score++;
                 return false;
             } else if(Jay.jay_edge() == theWalls.currentWalls.get(0).oneWall.get(0).x){
                 return true;
@@ -313,7 +326,9 @@ public class Game1 {
             if(this.collisionHuh()) {
                 return new WorldEnd(true, new OverlayImages(this.makeImage(),
                         new TextImage(new Posn(window_w/2, window_h/2),
-                        "You killed Jay!", new Red())));
+                        "You killed Jay!", new Red()).overlayImages(
+                        new TextImage(new Posn(window_w/2, window_h/2+25),
+                        "Score: " + score, new Red()))));
             } else {
 //                System.out.println("not over yet");
                 return new WorldEnd(false, this.makeImage());
@@ -326,18 +341,32 @@ public class Game1 {
     public static class SampleWorld implements constants {
         SampleWorld() {}
         
-        slideyJay player = new slideyJay(window_h - 13);
-        single_wall oneWall = new single_wall(new ArrayList<Posn>(), 0);
-        all_walls theWall = new all_walls(new ArrayList<single_wall>());
+        static slideyJay player = new slideyJay(window_h - 13);
+        static single_wall oneWall = new single_wall(new ArrayList<Posn>(), 0);
+        static all_walls theWall = new all_walls(new ArrayList<single_wall>());
         
         playField sampleField = new playField(player, oneWall, theWall);
         
-        
+        public static void test() throws Exception {
+            SampleWorld s = new SampleWorld();
+            Testeez.check("tick 10", s.theWall.currentWalls.size(), theWall.counter + 1 / 10);
+        }
     }
     
-    public static void main(String[] args) {
+
+    
+    public static void main(String[] args) throws Exception {
         System.out.println("test");
         SampleWorld x = new SampleWorld();
+        Game1.SampleWorld.test();
+        System.out.println("All tests passed!");
         x.sampleField.bigBang(1000, 500, 0.5);
+    }
+}
+
+class game1test {
+    public static void main (String[] args) throws Exception {
+        Game1.SampleWorld.test();
+        System.out.println("All tests passed!");
     }
 }

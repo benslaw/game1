@@ -22,6 +22,12 @@ class Testeez {
             throw new Exception("\n" + label + ": " + x + " should equal " + y + " but it don't :(");
         }
     }
+    
+    public static void check_ints(String label, int x, int y) throws Exception {
+        if (x != y) {
+            throw new Exception("\n" + label + ": " + x + " should equal " + y + " but it don't :(");
+        }
+    }
 }
 
 public class Game1 {
@@ -314,23 +320,31 @@ public class Game1 {
             //counter divided by the frequency rounded down. once one set of walls has passed, the number of walls on 
             //screen will always be at most (window_w/25)/frequency.
             Testeez.check("tick walls", s.theWall.currentWalls.size(), (int) Math.floor(theWall.counter / theWall.frequency));
-//            int jay_before_move_y = (int) s.sampleField.Jay.jay_y;
-//            s.sampleField.Jay.move("up");
-//            System.out.println((int)jay_before_move_y);
-//            System.out.println((int)s.sampleField.Jay.jay_y + 25);
-//            Testeez.check("player moves",(int) jay_before_move_y, (int) s.sampleField.Jay.jay_y + 25);
-//            s.sampleField.Jay.move("down");
-//            Testeez.check("player moves on down edge",(int) jay_before_move_y, (int) s.sampleField.Jay.jay_y);
+            //player moves up check: checks to see that when an "up" movement is called, the y coordinate of the player
+            //(Jay) moves up on the screen by one box size (25)
+            int jay_before_move_y = (int) s.sampleField.Jay.jay_y;
+            s.sampleField.Jay.move("up");
+            Testeez.check_ints("player moves up",(int) jay_before_move_y - 25, (int) s.sampleField.Jay.jay_y);
+            //player moves down check: checks to see that when a "down" movement is called, the y coordinate of the
+            //player (Jay) moves down on the screen by one box size (25)
+            int jay_after_move_y = (int) s.sampleField.Jay.jay_y;
+            s.sampleField.Jay.move("down");
+            Testeez.check_ints("player moves down", (int) jay_after_move_y + 25, (int) s.sampleField.Jay.jay_y);
+            //player moves down on edge: checks to ensure that even if a "down" movement is called on the lower edge
+            //of the screen, Jay's y coordinate doesn't change (because he's hit the boundary of the screen)
+            s.sampleField.Jay.move("down");
+            Testeez.check_ints("player moves on down edge",(int) jay_before_move_y, (int) s.sampleField.Jay.jay_y);
             //move Jay to the top of the screen
             for(int i = 0; i < numblocks; i++) {
                 s.sampleField.Jay.move("up");
             }
             //player on top of screen: check to see if the player has reached the upper bound of the playfield
-            Testeez.check("player on top of screen", s.sampleField.Jay.jay_y, (int) 12.5);
+            Testeez.check_ints("player on top of screen", s.sampleField.Jay.jay_y, (int) 12.5);
             //player moves up on edge: check to see that even if an "up" movement is called, the player does
             //not move any farther up on the screen
+            int jay_on_screen_top = s.sampleField.Jay.jay_y;
             s.sampleField.Jay.move("up");
-            Testeez.check("player moves up on edge", s.sampleField.Jay.jay_y, (int) 12.5);
+            Testeez.check_ints("player moves up on edge", s.sampleField.Jay.jay_y, jay_on_screen_top);
             //tick the world and makeImages such to create a situation where the player ocmes into contact
             //with the first wall
             for(int i = 0; i < 34; i++) {
